@@ -5,5 +5,6 @@ return [
         resource_path('views'),
     ],
 
-    'compiled' => '/tmp/views',  // ← hardcode ke /tmp, selalu writable di Vercel
+    // UBAH BARIS INI
+    'compiled' => storage_path('framework/views'), 
 ];
