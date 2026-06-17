@@ -30,8 +30,26 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         //
     })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
+->withExceptions(function (Exceptions $exceptions) {
+        // ⚡ RAW PHP ESCAPE HATCH FOR VERCEL (ANTI DOUBLE-CRASH)
+        $exceptions->render(function (\Throwable $e) {
+            if (isset($_ENV['VERCEL']) || isset($_ENV['NOW_REGION'])) {
+                // WAJIB PAKAI PHP MURNI: Jangan pakai helper response() atau json() bawaan Laravel
+                header('Content-Type: application/json');
+                http_response_code(500);
+                
+                echo json_encode([
+                    '🔥_STATUS_EROR' => '🚨 EROR ASLI BERHASIL DICEGAT 🚨',
+                    'tipe_exception' => get_class($e),
+                    'pesan_error'   => $e->getMessage(),
+                    'file_terkait'  => $e->getFile(),
+                    'baris_line'    => $e->getLine(),
+                    'trace_singkat' => explode("\n", substr($e->getTraceAsString(), 0, 1500))
+                ], JSON_PRETTY_PRINT);
+                
+                exit(1); // Hentikan paksa seluruh proses script saat ini juga!
+            }
+        });
     })->create();
 
 // 2. Alihkan seluruh sistem Storage Laravel ke folder /tmp yang baru dibuat
