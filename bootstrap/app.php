@@ -15,5 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
         // Tempat mengatur middleware global / web / api
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Tempat mengatur custom exception handling
+        
+        // 🛠️ SUNTIKAN DIAGNOSTIK: Paksa cetak error asli ke Vercel Log Stream
+        $exceptions->report(function (\Throwable $e) {
+            file_put_contents(
+                'php://stderr', 
+                "\n=========================================\n" . 
+                "⚠️ ERROR ASLI YANG TERSEMBUNYI:\n" . 
+                "Pesan : " . $e->getMessage() . "\n" .
+                "File  : " . $e->getFile() . " (Baris: " . $e->getLine() . ")\n" .
+                "=========================================\n"
+            );
+        });
+
     })->create();
