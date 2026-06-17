@@ -1,25 +1,18 @@
 <?php
 
-// Buat semua folder yang dibutuhkan Laravel di /tmp (writable di Vercel)
-$dirs = [
-    '/tmp/views',
-    '/tmp/storage/framework/sessions',
-    '/tmp/storage/framework/cache/data',
-    '/tmp/storage/framework/views',
-    '/tmp/storage/logs',
-    '/tmp/storage/app/public',
-];
-
-foreach ($dirs as $dir) {
-    if (!is_dir($dir)) {
-        mkdir($dir, 0775, true);
-    }
+// Clear cached routes untuk Vercel
+if (file_exists(__DIR__ . '/../bootstrap/cache/routes-v7.php')) {
+    unlink(__DIR__ . '/../bootstrap/cache/routes-v7.php');
 }
 
-// Override environment variables
+// Buat tmp dirs
+$dirs = ['/tmp/views', '/tmp/storage/framework/sessions',
+         '/tmp/storage/framework/cache/data', '/tmp/storage/logs'];
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) mkdir($dir, 0775, true);
+}
+
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
-$_ENV['SESSION_DRIVER'] = 'cookie';
-$_ENV['CACHE_STORE'] = 'array';
 $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/views';
 
 require __DIR__ . '/../public/index.php';
