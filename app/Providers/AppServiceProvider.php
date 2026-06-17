@@ -6,9 +6,13 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     */
     public function register(): void
     {
-        if (env('VERCEL')) {
+        // 🛠️ Menggunakan getenv() agar kebal dari batasan cache Laravel
+        if (getenv('VERCEL') || isset($_SERVER['VERCEL'])) {
             $storageFolders = [
                 '/tmp/storage/framework/views',
                 '/tmp/storage/framework/cache',
@@ -24,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 
+    /**
+     * Bootstrap any application services.
+     */
     public function boot(): void
     {
         //
