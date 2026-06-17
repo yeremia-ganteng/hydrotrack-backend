@@ -1,9 +1,10 @@
 <?php
 
-// Clear cached routes untuk Vercel
-if (file_exists(__DIR__ . '/../bootstrap/cache/routes-v7.php')) {
-    unlink(__DIR__ . '/../bootstrap/cache/routes-v7.php');
-}
+// Redirect semua Laravel cache ke /tmp (writable di Vercel)
+putenv('APP_CONFIG_CACHE=/tmp/config.php');
+putenv('APP_ROUTES_CACHE=/tmp/routes.php');
+putenv('APP_SERVICES_CACHE=/tmp/services.php');
+putenv('APP_PACKAGES_CACHE=/tmp/packages.php');
 
 // Buat tmp dirs
 $dirs = ['/tmp/views', '/tmp/storage/framework/sessions',
