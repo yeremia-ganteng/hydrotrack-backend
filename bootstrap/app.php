@@ -4,21 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-// 1. PASTIKAN FOLDER COMPILED VIEW DI /TMP SUDAH DIBUAT SEBELUM LARAVEL BERJALAN
-if (isset($_SERVER['VERCEL']) || env('VERCEL')) {
-    $folders = [
-        '/tmp/views', 
-        '/tmp/storage/framework/cache',
-        '/tmp/storage/framework/sessions'
-    ];
-    foreach ($folders as $folder) {
-        if (!is_dir($folder)) {
-            @mkdir($folder, 0755, true);
-        }
-    }
-}
-
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -29,15 +15,30 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // 2. TANGKAP ERROR API AGAR MENAMPILKAN ERROR ASLI DI CONTROLLER
-        $exceptions->render(function (\Throwable $e) {
-            if (request()->is('api/*') || request()->expectsJson()) {
-                return response()->json([
-                    'error' => true,
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ], 500);
-            }
-        });
+        //
     })->create();
+
+/*
+|--------------------------------------------------------------------------
+| Inisialisasi Runtime Folder Vercel
+|--------------------------------------------------------------------------
+*/
+if (env('VERCEL')) {
+    // Set instance path storage utama sejak awal aplikasi di-load
+    $app->instance('path.storage', '/tmp/storage');
+
+    $storageFolders = [
+        '/tmp/storage/framework/views',
+        '/tmp/storage/framework/cache',
+        '/tmp/storage/framework/sessions',
+        '/tmp/storage/bootstrap/cache'
+    ];
+
+    foreach ($storageFolders as $folder) {
+        if (!is_dir($folder)) {
+            mkdir($folder, 0755, true);
+        }
+    }
+}
+
+return $app;
