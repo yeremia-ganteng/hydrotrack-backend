@@ -1,27 +1,28 @@
 <?php
 
+// Setup storage di /tmp (satu-satunya writable folder di Vercel)
+$storagePath = '/tmp/storage';
 $dirs = [
+    $storagePath . '/framework/views',
+    $storagePath . '/framework/sessions',
+    $storagePath . '/framework/cache/data',
+    $storagePath . '/logs',
+    $storagePath . '/app/public',
     '/tmp/views',
-    '/tmp/storage/framework/sessions',
-    '/tmp/storage/framework/cache/data',
-    '/tmp/storage/framework/views',
-    '/tmp/storage/logs',
-    '/tmp/storage/app',
 ];
 
 foreach ($dirs as $dir) {
     if (!is_dir($dir)) mkdir($dir, 0775, true);
 }
 
-// Set semua env yang dibutuhkan
-putenv('VIEW_COMPILED_PATH=/tmp/views');
+// Override SEMUA path storage ke /tmp
+putenv('LARAVEL_STORAGE_PATH=' . $storagePath);
+$_ENV['LARAVEL_STORAGE_PATH'] = $storagePath;
+$_SERVER['LARAVEL_STORAGE_PATH'] = $storagePath;
+
 putenv('CACHE_STORE=array');
 putenv('SESSION_DRIVER=cookie');
-putenv('CACHE_DRIVER=array');
-putenv('QUEUE_CONNECTION=sync');
 putenv('LOG_CHANNEL=stderr');
-
-$_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
 $_ENV['CACHE_STORE'] = 'array';
 $_ENV['SESSION_DRIVER'] = 'cookie';
 
