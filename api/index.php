@@ -1,5 +1,12 @@
 <?php
 
+define('LARAVEL_START', microtime(true));
+
+/*
+|--------------------------------------------------------------------------
+| 1. Siapkan Struktur Folder Writable di /tmp Vercel
+|--------------------------------------------------------------------------
+*/
 $storagePath = '/tmp/storage';
 $dirs = [
     $storagePath . '/framework/views',
@@ -7,30 +14,40 @@ $dirs = [
     $storagePath . '/framework/cache/data',
     $storagePath . '/logs',
     $storagePath . '/app/public',
-    '/tmp/views',
 ];
 foreach ($dirs as $dir) {
-    if (!is_dir($dir)) mkdir($dir, 0775, true);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0775, true);
+    }
 }
 
-putenv('LARAVEL_STORAGE_PATH=' . $storagePath);
-$_ENV['LARAVEL_STORAGE_PATH'] = $storagePath;
+/*
+|--------------------------------------------------------------------------
+| 2. Atur Environment Runtime Serverless
+|--------------------------------------------------------------------------
+*/
 putenv('CACHE_STORE=array');
 putenv('SESSION_DRIVER=cookie');
 putenv('LOG_CHANNEL=stderr');
 
-// Tangkap error PHP apapun
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+/*
+|--------------------------------------------------------------------------
+| 3. Bootstrapping Laravel 11 & Suntik Path Storage secara Paksa
+|--------------------------------------------------------------------------
+*/
 
-set_exception_handler(function($e) {
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine(),
-        'trace' => substr($e->getTraceAsString(), 0, 500)
-    ]);
-});
+// Muat Composer Autoloader
+require __DIR__ . '/../vendor/autoload.php';
 
-require __DIR__ . '/../public/index.php';
+// Muat Object Aplikasi Laravel dari bootstrap
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
+// PANDU LARAVEL: Gunakan /tmp/storage sebagai satu-satunya jalur penulisan data!
+$app->useStoragePath($storagePath);
+
+/*
+|--------------------------------------------------------------------------
+| 4. Eksekusi Request API
+|--------------------------------------------------------------------------
+*/
+$app->handleRequest(\Illuminate\Http\Request::capture());
