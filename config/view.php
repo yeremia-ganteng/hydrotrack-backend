@@ -17,8 +17,6 @@ return [
     | Compiled View Path (Bypass Khusus Vercel)
     |--------------------------------------------------------------------------
     */
-    'compiled' => env('VERCEL') 
-        ? '/tmp/storage/framework/views' 
-        : storage_path('framework/views'),
+    'compiled' => env('VERCEL') ? '/tmp' : storage_path('framework/views'),
 
 ];
