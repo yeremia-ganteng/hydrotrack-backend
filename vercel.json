@@ -1,6 +1,11 @@
 {
   "version": 2,
   "framework": null,
+  "build": {
+    "env": {
+      "COMPOSER_ALLOW_SUPERUSER": "1"
+    }
+  },
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.7.2"
