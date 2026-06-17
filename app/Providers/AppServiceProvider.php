@@ -11,7 +11,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Kosongkan bagian ini dari trik Vercel kemarin
+        // 🛠️ Logika Otomatis Khusus Vercel Serverless
+        // Membuat folder yang writable di direktori /tmp sebelum Laravel dijalankan
+        if (env('VERCEL')) {
+            $storageFolders = [
+                '/tmp/storage/framework/views',
+                '/tmp/storage/framework/cache',
+                '/tmp/storage/framework/sessions',
+                '/tmp/bootstrap/cache'
+            ];
+
+            foreach ($storageFolders as $folder) {
+                if (!is_dir($folder)) {
+                    mkdir($folder, 0755, true);
+                }
+            }
+        }
     }
 
     /**
@@ -19,6 +34,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Kosongkan juga bagian ini agar kembali bawaan pabrik
+        //
     }
 }
