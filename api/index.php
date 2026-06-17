@@ -1,18 +1,23 @@
 <?php
 
-// Redirect semua Laravel cache ke /tmp (writable di Vercel)
-putenv('APP_CONFIG_CACHE=/tmp/config.php');
-putenv('APP_ROUTES_CACHE=/tmp/routes.php');
-putenv('APP_SERVICES_CACHE=/tmp/services.php');
-putenv('APP_PACKAGES_CACHE=/tmp/packages.php');
+// Buat tmp dirs yang dibutuhkan Laravel
+$dirs = [
+    '/tmp/views',
+    '/tmp/storage/framework/sessions',
+    '/tmp/storage/framework/cache/data',
+    '/tmp/storage/framework/views',
+    '/tmp/storage/logs',
+    '/tmp/storage/app',
+];
 
-// Buat tmp dirs
-$dirs = ['/tmp/views', '/tmp/storage/framework/sessions',
-         '/tmp/storage/framework/cache/data', '/tmp/storage/logs'];
 foreach ($dirs as $dir) {
-    if (!is_dir($dir)) mkdir($dir, 0775, true);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0775, true);
+    }
 }
 
+// Hanya override view compiled path
+putenv('VIEW_COMPILED_PATH=/tmp/views');
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
 $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/views';
 

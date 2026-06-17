@@ -5,6 +5,11 @@ use App\Http\Controllers\Api\WaterApiController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
+// Taruh di PALING ATAS, sebelum semua route lain
+Route::get('/test', function () {
+    return response()->json(['status' => 'OK', 'message' => 'Laravel routing works!']);
+});
+
 // ── Public routes ─────────────────────────────────────────────
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
