@@ -15,10 +15,24 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // PAKSA KELUARKAN ERROR ASLI JIKA TERJADI DI ROUTE API
+        $exceptions->render(function (\Throwable $e) {
+            if (request()->is('api/*') || request()->expectsJson()) {
+                header('Content-Type: application/json');
+                http_response_code(500);
+                echo json_encode([
+                    'error' => true,
+                    'message' => $e->getMessage(),
+                    'exception_type' => get_class($e),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                exit;
+            }
+        });
     })->create();
 
-// PENGALIHAN STORAGE UNTUK VERCEL (AMAN TANPA KOMPONEN CONFIG)
+// PENGALIHAN STORAGE UNTUK VERCEL
 if (isset($_SERVER['VERCEL']) || env('VERCEL')) {
     $app->useStoragePath('/tmp/storage');
     
@@ -34,8 +48,6 @@ if (isset($_SERVER['VERCEL']) || env('VERCEL')) {
             mkdir($folder, 0755, true);
         }
     }
-    
-    // Baris config([...]) yang memicu error di sini sudah dihapus secara aman
 }
 
 return $app;
