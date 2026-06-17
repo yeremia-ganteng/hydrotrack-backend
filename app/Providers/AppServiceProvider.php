@@ -9,13 +9,16 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-        // Cukup set path storage di sini jika di Vercel
-        if (env('VERCEL')) {
-            $this->app->instance('path.storage', '/tmp/storage');
-        }
+public function register(): void
+{
+    if (env('VERCEL')) {
+        // 1. Alihkan path storage utama seperti yang sudah kamu lakukan
+        $this->app->instance('path.storage', '/tmp/storage');
+
+        // 2. PAKSA konfigurasi 'view.compiled' yang terkunci di Fase 1 untuk pindah ke /tmp
+        config(['view.compiled' => '/tmp/storage/framework/views']);
     }
+}
 
     /**
      * Bootstrap any application services.
