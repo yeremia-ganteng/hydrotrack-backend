@@ -4,22 +4,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-// 1. Otomatis buat struktur folder di /tmp jika mendeteksi lingkungan Vercel
-if (isset($_ENV['VERCEL']) || isset($_ENV['NOW_REGION'])) {
-    $storageFolders = [
-        '/tmp/storage/logs',
-        '/tmp/storage/framework/views',
-        '/tmp/storage/framework/cache',
-        '/tmp/storage/framework/sessions',
-        '/tmp/storage/bootstrap/cache'
-    ];
-    foreach ($storageFolders as $folder) {
-        if (!is_dir($folder)) {
-            mkdir($folder, 0755, true);
-        }
-    }
-}
-
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -28,13 +12,12 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Tempat middleware kamu jika ada
     })
-->withExceptions(function (Exceptions $exceptions) {
+    ->withExceptions(function (Exceptions $exceptions) {
         // ⚡ RAW PHP ESCAPE HATCH FOR VERCEL (ANTI DOUBLE-CRASH)
         $exceptions->render(function (\Throwable $e) {
             if (isset($_ENV['VERCEL']) || isset($_ENV['NOW_REGION'])) {
-                // WAJIB PAKAI PHP MURNI: Jangan pakai helper response() atau json() bawaan Laravel
                 header('Content-Type: application/json');
                 http_response_code(500);
                 
@@ -47,14 +30,25 @@ $app = Application::configure(basePath: dirname(__DIR__))
                     'trace_singkat' => explode("\n", substr($e->getTraceAsString(), 0, 1500))
                 ], JSON_PRETTY_PRINT);
                 
-                exit(1); // Hentikan paksa seluruh proses script saat ini juga!
+                exit(1);
             }
         });
-    })->create();
+    })
+    ->create(); // <--- Membuat instance application di sini
 
-// 2. Alihkan seluruh sistem Storage Laravel ke folder /tmp yang baru dibuat
+// ⚡ BYPASS READ-ONLY FILESYSTEM VERCEL
 if (isset($_ENV['VERCEL']) || isset($_ENV['NOW_REGION'])) {
+    // Paksa Laravel menggunakan /tmp untuk folder storage dan bootstrap cache
     $app->useStoragePath('/tmp/storage');
+    $app->useBootstrapPath('/tmp/bootstrap');
+
+    // Buat foldernya secara gaib di serverless jika belum tersedia
+    if (!is_dir('/tmp/bootstrap/cache')) {
+        mkdir('/tmp/bootstrap/cache', 0755, true);
+    }
+    if (!is_dir('/tmp/storage/framework/cache')) {
+        mkdir('/tmp/storage/framework/cache', 0755, true);
+    }
 }
 
-return $app;
+return $app; // <--- Kembalikan instance aplikasi yang sudah dimodifikasi jalur lokasinya
