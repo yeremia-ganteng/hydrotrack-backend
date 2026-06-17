@@ -6,13 +6,8 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        // 🛠️ Logika Otomatis Khusus Vercel Serverless
-        // Membuat folder yang writable di direktori /tmp sebelum Laravel dijalankan
         if (env('VERCEL')) {
             $storageFolders = [
                 '/tmp/storage/framework/views',
@@ -29,9 +24,6 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         //
