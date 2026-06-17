@@ -4,7 +4,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-// 1. Tampung build instance ke dalam variabel $app
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -19,7 +18,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
-// 2. Paksa pengalihan Storage Path di level tertinggi khusus untuk Vercel
+// PENGALIHAN STORAGE UNTUK VERCEL (AMAN TANPA KOMPONEN CONFIG)
 if (isset($_SERVER['VERCEL']) || env('VERCEL')) {
     $app->useStoragePath('/tmp/storage');
     
@@ -36,8 +35,7 @@ if (isset($_SERVER['VERCEL']) || env('VERCEL')) {
         }
     }
     
-    config(['view.compiled' => '/tmp/storage/framework/views']);
+    // Baris config([...]) yang memicu error di sini sudah dihapus secara aman
 }
 
-// 3. Kembalikan instance $app
 return $app;
