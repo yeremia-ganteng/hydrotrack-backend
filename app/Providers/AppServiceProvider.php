@@ -11,7 +11,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Biarkan kosong atau sesuai bawaan awal Laravel 11
+        // Cukup set path storage di sini jika di Vercel
+        if (env('VERCEL')) {
+            $this->app->instance('path.storage', '/tmp/storage');
+        }
     }
 
     /**
@@ -19,6 +22,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Jalankan pembuatan folder saat aplikasi sudah siap (booting)
+        if (env('VERCEL')) {
+            $storageFolders = [
+                '/tmp/storage/framework/views',
+                '/tmp/storage/framework/cache',
+                '/tmp/storage/framework/sessions',
+                '/tmp/storage/bootstrap/cache'
+            ];
+
+            foreach ($storageFolders as $folder) {
+                if (!is_dir($folder)) {
+                    mkdir($folder, 0755, true);
+                }
+            }
+        }
     }
 }

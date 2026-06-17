@@ -5,6 +5,6 @@ return [
         resource_path('views'),
     ],
 
-    // UBAH BARIS INI
-    'compiled' => storage_path('framework/views'), 
+    // Pastikan baris ini mengarah ke folder storage di /tmp
+    'compiled' => env('VIEW_COMPILED_PATH', '/tmp/storage/framework/views'),
 ];
