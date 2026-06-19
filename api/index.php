@@ -30,6 +30,10 @@ putenv('CACHE_STORE=array');
 putenv('SESSION_DRIVER=cookie');
 putenv('LOG_CHANNEL=stderr');
 
+// 🔥 TRIK SAKTI: Paksa Vercel agar tidak memotong prefix /api pada URL Laravel
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['PHP_SELF'] = '/index.php';
+
 /*
 |--------------------------------------------------------------------------
 | 3. Bootstrapping Laravel 11 & Suntik Path Storage secara Paksa
