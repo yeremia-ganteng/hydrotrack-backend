@@ -47,7 +47,20 @@ $app->useStoragePath($storagePath);
 
 /*
 |--------------------------------------------------------------------------
-| 4. Eksekusi Request API
+| 4. Eksekusi Request API lewat HTTP Kernel (Aman untuk Subfolder Vercel)
 |--------------------------------------------------------------------------
 */
-$app->handleRequest(\Illuminate\Http\Request::capture());
+// Ambil Http Kernel dari container Laravel
+$kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
+
+// Tangkap request yang masuk dari internet
+$request = \Illuminate\Http\Request::capture();
+
+// Jalankan request melalui kernel dan dapatkan responnya
+$response = $kernel->handle($request);
+
+// Kirim balik respon tersebut ke client (Browser / Flutter)
+$response->send();
+
+// Selesaikan siklus hidup request laravel
+$kernel->terminate($request, $response);
